@@ -17,11 +17,11 @@
     </div>
     <div class="row-fluid">
         <div class="panel d-center" id="login_form">
-            <form action="?action=chk_register" method="post" class="form-horizontal">
+            <form action="?action=chk_login" method="post" class="form-horizontal">
                 <div class="control-group">
                     <label class="control-label" for="username" id="l_username">账号：</label>
                     <div class="controls">
-                        <input type="text" name="id" id="username" placeholder="用户名/邮件地址">
+                        <input type="text" name="username" id="username" placeholder="用户名/邮件地址">
                     </div>
                 </div>
                 <div class="control-group">

@@ -29,3 +29,6 @@ if (!defined('TPL_FILE_EXT')) define('TPL_FILE_EXT', '.php');
 
 //数据库操作日志存放文件
 if (!defined('SQL_LOG_FILE')) define('SQL_LOG_FILE', dirname(dirname(__FILE__)) . '/sql.log.json');
+
+//时区设置
+ini_set("date.timezone", 'Asia/Shanghai'); // 系统时区

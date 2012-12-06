@@ -8,8 +8,16 @@
  */
 include(dirname(__FILE__) . '/include/init.php');
 
-if (!check_login()) {
+if (!check_login()) { //登陆检查
     header('Location: ' . get_baseurl().'/login.php');
     exit;
 }
-echo '已登录';
+
+//加载应用函数库
+include(dirname(__FILE__) . '/library/libs_loader.php');
+
+$tpl->assign(array(
+    "lists" => get_user_lists($_SESSION['uid']),
+    'user' => get_user($_SESSION['uid'])
+));
+$tpl->show('index');

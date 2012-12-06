@@ -26,11 +26,10 @@ function chk_login() {
         echo '用户名密码不能为空，3秒后跳回登陆页面';
         exit;
     }
-    $sql =  "SELECT * FROM `%susers` WHERE `user_name`='%s' OR `user_email`='%s' and `password`='%s'";
-    $sql = sprintf($sql, $cfg->db->prefix, $db->escape($_POST['username']), $db->escape($_POST['username']), md5(md5($_POST['password']))); //double md5
 
-    if($db->count($sql)){
-        $_SESSION['login'] = $_POST['username'];
+    if($user = chk_user_login($_POST['username'], $_POST['password'])){
+        $_SESSION['login'] = $user['user_name'];
+        $_SESSION['uid'] = $user['uid'];
         header('Location: ' . get_baseurl());
     } else {
         header("Content-type: text/plain; charset=UTF-8");

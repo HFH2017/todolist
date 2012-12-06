@@ -7,6 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */?>
 <div class="footer t-center d-center">
+    <a href="index.php">首页</a> |
     <a href="readme.html" target="_blank">系统说明</a> |
     <a href="sqllog.php" target="_blank">系统SQL日志</a> |
     <a href="datadict.html" target="_blank">数据字典</a> |

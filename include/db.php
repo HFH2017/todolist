@@ -6,23 +6,50 @@
  * Time: 下午3:28
  * To change this template use File | Settings | File Templates.
  */
+
+/**
+ * 数据库操作类
+ * 创建本类的实例之后，使用init()方法设置数据库连接信息
+ * 无需显式调用connect()方法连接数据库，所有数据库操作前均检查连接状态，若未连接则会自动连接
+ * @todo: mysql 按需连接
+ */
 class Database {
+    private $host; //数据库主机
+    private $user; //数据库用户名
+    private $pass; //数据库密码
+    private $dbname; //数据库名
+    private $charset; //数据库编码
+
     private $hdb; //数据库句柄
     private $r; //查询结果
 
     /**
-     * 连接数据库
+     * 初始化数据库连接信息
      * @param $host
      * @param $user
      * @param $pass
      * @param $dbname
      * @param string $charset
+     */
+    public function init($host, $user, $pass, $dbname, $charset = 'UTF8') {
+        $this->host = $host;
+        $this->user = $user;
+        $this->pass = $pass;
+        $this->dbname = $dbname;
+        $this->charset = $charset;
+    }
+
+    /**
+     * 连接数据库
      * @return bool
      */
-    public function connect($host, $user, $pass, $dbname, $charset = 'UTF8') {
-        $this->hdb = mysql_connect($host, $user, $pass) or die('Unable to connect to database!');
-        mysql_query('SET NAMES ' . $charset, $this->hdb) or die ('MySQL Error on [SET CHARSET] query. ' . mysql_error());
-        return mysql_select_db($dbname, $this->hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
+    public function connect() {
+        if (empty($this->host) || empty($this->user) || empty($this->pass) || empty($this->dbname) || empty($this->charset)) {
+            return false;
+        }
+        $this->hdb = mysql_connect($this->host, $this->user, $this->pass) or die('Unable to connect to database!');
+        mysql_query('SET NAMES ' . $this->charset, $this->hdb) or die ('MySQL Error on [SET CHARSET] query. ' . mysql_error());
+        return mysql_select_db($this->dbname, $this->hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
     }
 
     /**
@@ -31,36 +58,54 @@ class Database {
      * @return int
      */
     public function count($sql) {
-        $this->r = $this->query($sql);
-        return mysql_num_rows($this->r);
+        if ($this->r) {
+            return mysql_num_rows($this->r);
+        }
+        return 0;
     }
 
     /**
      * 获取记录集中的一行的关联数组
-     * @param $sql
      * @return array
      */
-    public function fetch($sql) {
-        static $sql_hash;
-
-        if ($sql_hash != md5($sql)) {
-            //一次新的查询
-            $this->query($sql);
-            $sql_hash = md5($sql);
-        }
-
+    public function fetchOne() {
         return mysql_fetch_assoc($this->r);
     }
 
     /**
-     * MySQL Raw查询
+     * 获取记录集中的全部数据，以多维数组形式返回
+     * @return array
+     */
+    public function fetchAll() {
+        $rows = array();
+        while ($row = $this->fetchOne()) {
+            $row[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * MySQL Raw查询, 可以用于连贯操作，跟着其他的操作
      * @param $sql
      * @return resource
      */
     public function query($sql) {
         //$this->r = mysql_query($sql, $this->hdb) or die ('MySQL Error on [RAW] query. ' . mysql_error());
         $this->r = $this->_log_query($sql, $this->hdb); //数据库系统设计综合实验特殊设计
-        return $this->r;
+        return $this;
+    }
+
+    /**
+     * 数据库插入操作，成功返回最后插入ID，失败返回假
+     * @param $sql
+     * @return bool|int
+     */
+    public function insert($sql) {
+        if($this->query($sql)->affected_rows()) {
+            return $this->last_id();
+        } else {
+            return false;
+        }
     }
 
     /**
