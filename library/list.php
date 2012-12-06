@@ -7,6 +7,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * 返回用户的列表们
+ * @param $uid
+ * @return array
+ */
 function get_user_lists($uid) {
     global $db;
 
@@ -20,6 +25,12 @@ function get_user_lists($uid) {
     }
 }
 
+/**
+ * 创建指定用户的一个列表
+ * @param $uid
+ * @param $list_name
+ * @return bool|int
+ */
 function new_user_list($uid, $list_name) {
     global $db;
 
@@ -31,4 +42,8 @@ function new_user_list($uid, $list_name) {
     } else {
         return false;
     }
+}
+
+function del_user_list($uid, $lid) {
+
 }

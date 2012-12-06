@@ -11,7 +11,6 @@
  * 数据库操作类
  * 创建本类的实例之后，使用init()方法设置数据库连接信息
  * 无需显式调用connect()方法连接数据库，所有数据库操作前均检查连接状态，若未连接则会自动连接
- * @todo: mysql 按需连接
  */
 class Database {
     private $host; //数据库主机
@@ -20,6 +19,7 @@ class Database {
     private $dbname; //数据库名
     private $charset; //数据库编码
 
+    private $connected = false; //数据库连接状态
     private $hdb; //数据库句柄
     private $r; //查询结果
 
@@ -49,7 +49,10 @@ class Database {
         }
         $this->hdb = mysql_connect($this->host, $this->user, $this->pass) or die('Unable to connect to database!');
         mysql_query('SET NAMES ' . $this->charset, $this->hdb) or die ('MySQL Error on [SET CHARSET] query. ' . mysql_error());
-        return mysql_select_db($this->dbname, $this->hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
+        mysql_select_db($this->dbname, $this->hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
+
+        $this->connected = true;
+        return true;
     }
 
     /**
@@ -61,7 +64,7 @@ class Database {
         if ($this->r) {
             return mysql_num_rows($this->r);
         }
-        return 0;
+        return false;
     }
 
     /**
@@ -69,12 +72,15 @@ class Database {
      * @return array
      */
     public function fetchOne() {
-        return mysql_fetch_assoc($this->r);
+        if ($this->r) {
+            return mysql_fetch_assoc($this->r);
+        }
+        return false;
     }
 
     /**
      * 获取记录集中的全部数据，以多维数组形式返回
-     * @return array
+     * @return array 失败返回空数组
      */
     public function fetchAll() {
         $rows = array();
@@ -90,6 +96,9 @@ class Database {
      * @return resource
      */
     public function query($sql) {
+        if (!$this->connected) {
+            $this->connect();
+        }
         //$this->r = mysql_query($sql, $this->hdb) or die ('MySQL Error on [RAW] query. ' . mysql_error());
         $this->r = $this->_log_query($sql, $this->hdb); //数据库系统设计综合实验特殊设计
         return $this;
@@ -113,7 +122,10 @@ class Database {
      * @return int
      */
     public function last_id() {
-        return mysql_insert_id($this->hdb);
+        if ($this->hdb) {
+            return mysql_insert_id($this->hdb);
+        }
+        return false;
     }
 
     /**
@@ -121,7 +133,10 @@ class Database {
      * @return int
      */
     public function affected_rows() {
-        return mysql_affected_rows($this->hdb);
+        if ($this->hdb) {
+            return mysql_affected_rows($this->hdb);
+        }
+        return false;
     }
 
     /**
@@ -138,7 +153,10 @@ class Database {
      * @return int
      */
     public function errno() {
-        return mysql_errno($this->hdb);
+        if ($this->hdb) {
+            return mysql_errno($this->hdb);
+        }
+        return false;
     }
 
     /**
@@ -146,7 +164,10 @@ class Database {
      * @return string
      */
     public function errmsg() {
-        return mysql_error($this->hdb);
+        if ($this->hdb) {
+            return mysql_error($this->hdb);
+        }
+        return false;
     }
 
     /**
@@ -154,7 +175,13 @@ class Database {
      * @return bool
      */
     public function close() {
-        return mysql_close($this->hdb);
+        if ($this->hdb) {
+            mysql_close($this->hdb);
+            $this->connected = false;
+            $this->hdb = false;
+            return true;
+        }
+        return false;
     }
 
     /**
