@@ -105,7 +105,7 @@ class Database {
     }
 
     /**
-     * 数据库插入操作，成功返回最后插入ID，失败返回假
+     * 数据库插入操作封装，成功返回最后插入ID，失败返回假
      * @param $sql
      * @return bool|int
      */
@@ -115,6 +115,30 @@ class Database {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 数据库删除操作封装，删除后检查删除的记录数，不为0代表成功返回真，否则返回假
+     * @param $sql
+     * @return bool
+     */
+    public function delete($sql) {
+        if ($this->query($sql)->affected_rows()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 数据库更新操作封装，更新后检查更新的记录数，不为0代表成功返回真，否则返回假
+     * 注：MySQL 不会将原值和新值一样的列更新。这样使得 mysql_affected_rows()函数返回值不一定就是查询条件所符合的记录数，只有真正被修改的记录数才会被返回。
+     * @param $sql
+     * @return bool
+     */
+    public function update($sql) {
+        //操作跟delete相同，先query再检查affected_rows
+        return $this->delete($sql);
     }
 
     /**

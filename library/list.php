@@ -44,6 +44,33 @@ function new_user_list($uid, $list_name) {
     }
 }
 
-function del_user_list($uid, $lid) {
+/**
+ * 删除用户的一个列表
+ * @param $uid
+ * @param $lid
+ * @param bool $force 是否强制删除，默认为假，即当列表非空时默认不允许删除列表
+ * @return bool
+ */
+function del_user_list($uid, $lid, $force = false) {
+    global $db;
 
+    if (!$force) { // 检查列表是否非空
+        $l = get_user_tasks($uid, $lid);
+        if (!empty( $l)) { // 列表下面的任务非空默认不能删除
+            return false;
+        }
+    }
+    $sql = "DELETE FROM `lists` WHERE `lid` = %d AND `list_uid` = %d";
+    $sql = sprintf($sql, $lid, $uid);
+
+    return $db->delete($sql);
+}
+
+function update_user_list($uid, $lid, $new_name) {
+    global $db;
+
+    $sql = "UPDATE `lists` SET `list_name` = %s WHERE `lid` = %d AND `list_uid` = %d";
+    $sql = sprintf($sql, $new_name, $lid, $uid);
+
+    return $db->update($sql);
 }

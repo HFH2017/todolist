@@ -77,5 +77,6 @@ function init_user_data($uid) {
     if(!function_exists("new_user_task")) {
         include_once(dirname(__FILE__) . '/task.php');
     }
-    new_user_list($uid, '默认列表');
+    $lid = new_user_list($uid, '默认列表');
+    new_user_task($uid, $lid,); //@todo: 完善初始化数据  前端界面 图片 尽快 从简
 }
