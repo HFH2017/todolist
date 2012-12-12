@@ -13,11 +13,9 @@ if (!check_login()) { //登陆检查
     exit;
 }
 
-//加载应用函数库
-include(dirname(__FILE__) . '/library/libs_loader.php');
-
 $tpl->assign(array(
     "lists" => get_user_lists($_SESSION['uid']),
-    'user' => get_user($_SESSION['uid'])
+    'user' => get_user($_SESSION['uid']),
+    'tasks' => get_user_tasks($_SESSION['uid'], get_user_default_lid($_SESSION['uid']))
 ));
 $tpl->show('index');

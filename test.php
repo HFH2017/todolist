@@ -8,4 +8,4 @@
  */
 include_once(dirname(__FILE__) . '/include/init.php');
 
-$tpl->show('index');
+echo get_user_default_lid(2);

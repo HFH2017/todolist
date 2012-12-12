@@ -35,9 +35,10 @@ function get_user_tasks($uid, $lid) {
  * @param bool $is_finished 是否已完成，可空默认为假
  * @param string $task_deadline 任务deadline，可空默认不设
  * @param string $task_note 任务注释，可空默认不设
+ * @param bool $update_count 是否自动更新列表任务数量计数，默认为真，如果批量加入任务可以手动更新
  * @return bool|int 成功返回任务ID，失败返回假
  */
-function new_user_task($uid, $lid, $task_name, $is_stared = false, $is_finished = false, $task_deadline = '', $task_note = '') {
+function new_user_task($uid, $lid, $task_name, $is_stared = false, $is_finished = false, $task_deadline = '', $task_note = '', $update_count = true) {
     global $db;
 
     $is_stared = empty($is_stared) ? 0 : 1;
@@ -51,6 +52,9 @@ function new_user_task($uid, $lid, $task_name, $is_stared = false, $is_finished 
     $sql = sprintf($sql, $task_name, $uid, $lid, $is_stared, $is_finished, $task_deadline, $task_note);
 
     if ($uid = $db->insert($sql)) {
+        if ($update_count) {
+            update_tasks_count($lid);
+        }
         return $uid;
     } else {
         return false;

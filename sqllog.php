@@ -14,4 +14,4 @@ foreach ($logs as $k => &$v) {
 
 $tpl->assign(array('logs' => $logs));
 $tpl->show('sql_log');
-
+//@todo: 分页展示

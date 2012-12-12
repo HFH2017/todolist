@@ -60,6 +60,7 @@ function register_user($user_name, $user_mail, $user_pass) {
     $sql = sprintf($sql, $db->escape($user_name), md5(md5($user_pass)), $db->escape($user_mail)); //double md5
 
     if ($uid = $db->insert($sql)) {
+        init_user_data($uid);
         return $uid;
     } else {
         return false;
@@ -69,14 +70,50 @@ function register_user($user_name, $user_mail, $user_pass) {
 /**
  * 新用户的数据初始化，建立初始的列表和任务数据
  * @param $uid
+ * @return bool|int 返回默认列表ID
  */
 function init_user_data($uid) {
-    if(!function_exists("new_user_list")) {
-        include_once(dirname(__FILE__) . '/list.php');
-    }
-    if(!function_exists("new_user_task")) {
-        include_once(dirname(__FILE__) . '/task.php');
-    }
     $lid = new_user_list($uid, '默认列表');
-    new_user_task($uid, $lid,); //@todo: 完善初始化数据  前端界面 图片 尽快 从简
+    set_user_default_lid($uid, $lid);
+
+    new_user_task($uid, $lid, '这是一个默认的任务'); //@todo: 完善初始化数据  前端界面 图片 尽快 从简
+    new_user_task($uid, $lid, '任务还可以加星标', 1);
+    new_user_task($uid, $lid, '本任务已完成，别管我', 0, 1);
+    new_user_task($uid, $lid, '这个任务带有截止时间，就是今天', 0, 0, date("Y-m-d"));
+    new_user_task($uid, $lid, '这个任务还有附注信息', 0, 0, 0, '我是附注信息啦');
+    return $lid;
+
+}
+
+/**
+ * 设置用户的默认列表ID
+ * @param $uid
+ * @param $lid
+ * @return bool
+ */
+function set_user_default_lid($uid, $lid) {
+    global $db;
+
+    $sql = "UPDATE `users` SET `user_default_lid` = '%d' WHERE  `uid` =%d";
+    $sql = sprintf($sql, $uid, $lid);
+
+    return $db->update($sql);
+}
+
+/**
+ * 获取用户的默认列表ID
+ * @param $uid
+ * @return bool
+ */
+function get_user_default_lid($uid) {
+    global $db;
+
+    $sql = "SELECT `user_default_lid` FROM `users` WHERE `uid` =%d";
+    $sql = sprintf($sql, $uid);
+
+
+    $d_lid = $db->query($sql)->returnObj(true)->fetchOne()->user_default_lid;
+    $db->returnObj(false);
+
+    return $d_lid;
 }

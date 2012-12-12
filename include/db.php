@@ -13,15 +13,17 @@
  * 无需显式调用connect()方法连接数据库，所有数据库操作前均检查连接状态，若未连接则会自动连接
  */
 class Database {
-    private $host; //数据库主机
-    private $user; //数据库用户名
-    private $pass; //数据库密码
-    private $dbname; //数据库名
-    private $charset; //数据库编码
+    private $_host; //数据库主机
+    private $_user; //数据库用户名
+    private $_pass; //数据库密码
+    private $_dbname; //数据库名
+    private $_charset; //数据库编码
 
-    private $connected = false; //数据库连接状态
-    private $hdb; //数据库句柄
-    private $r; //查询结果
+    private $_connected = false; //数据库连接状态
+    private $_hdb; //数据库句柄
+    private $_r; //查询结果
+
+    private $_returnObj = false; //返回数组还是对象，默认返回数组
 
     /**
      * 初始化数据库连接信息
@@ -32,11 +34,11 @@ class Database {
      * @param string $charset
      */
     public function init($host, $user, $pass, $dbname, $charset = 'UTF8') {
-        $this->host = $host;
-        $this->user = $user;
-        $this->pass = $pass;
-        $this->dbname = $dbname;
-        $this->charset = $charset;
+        $this->_host = $host;
+        $this->_user = $user;
+        $this->_pass = $pass;
+        $this->_dbname = $dbname;
+        $this->_charset = $charset;
     }
 
     /**
@@ -44,14 +46,14 @@ class Database {
      * @return bool
      */
     public function connect() {
-        if (empty($this->host) || empty($this->user) || empty($this->pass) || empty($this->dbname) || empty($this->charset)) {
+        if (empty($this->_host) || empty($this->_user) || empty($this->_pass) || empty($this->_dbname) || empty($this->_charset)) {
             return false;
         }
-        $this->hdb = mysql_connect($this->host, $this->user, $this->pass) or die('Unable to connect to database!');
-        mysql_query('SET NAMES ' . $this->charset, $this->hdb) or die ('MySQL Error on [SET CHARSET] query. ' . mysql_error());
-        mysql_select_db($this->dbname, $this->hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
+        $this->_hdb = mysql_connect($this->_host, $this->_user, $this->_pass) or die('Unable to connect to database!');
+        mysql_query('SET NAMES ' . $this->_charset, $this->_hdb) or die ('MySQL Error on [SET CHARSET] query. ' . mysql_error());
+        mysql_select_db($this->_dbname, $this->_hdb) or die ('MySQL Error on [SET DB] query. ' . mysql_error());
 
-        $this->connected = true;
+        $this->_connected = true;
         return true;
     }
 
@@ -61,31 +63,51 @@ class Database {
      * @return int
      */
     public function count($sql) {
-        if ($this->r) {
-            return mysql_num_rows($this->r);
+        if ($this->_r) {
+            return mysql_num_rows($this->_r);
         }
         return false;
     }
 
     /**
-     * 获取记录集中的一行的关联数组
+     * 读取的行数据是否返回标准对象的开关，默认返回字段名为下标的数组
+     * 可以串联使用,如 $db->query($sql)->returnObj(true)->fetchOne();
+     * @param $returnObj 为真返回stdClass对象
+     * @return Database
+     */
+    public function returnObj($returnObj = false) {
+        $this->_returnObj = $returnObj;
+        return $this;
+    }
+
+    /**
+     * 获取记录集中的一行，可以通过returnObj()方法设定返回数组还是对象
      * @return array
      */
     public function fetchOne() {
-        if ($this->r) {
-            return mysql_fetch_assoc($this->r);
+        if ($this->_r) {
+            $row = mysql_fetch_assoc($this->_r);
+            if ($this->_returnObj) {
+                $obj = new stdClass();
+                foreach ($row as $k => $v) {
+                    $obj->$k = $v;
+                }
+                return $obj;
+            } else {
+                return $row;
+            }
         }
         return false;
     }
 
     /**
-     * 获取记录集中的全部数据，以多维数组形式返回
+     * 获取记录集中的全部数据，以数组形式返回记录集每一行
      * @return array 失败返回空数组
      */
     public function fetchAll() {
         $rows = array();
         while ($row = $this->fetchOne()) {
-            $row[] = $row;
+            $rows[] = $row;
         }
         return $rows;
     }
@@ -96,11 +118,11 @@ class Database {
      * @return resource
      */
     public function query($sql) {
-        if (!$this->connected) {
+        if (!$this->_connected) {
             $this->connect();
         }
         //$this->r = mysql_query($sql, $this->hdb) or die ('MySQL Error on [RAW] query. ' . mysql_error());
-        $this->r = $this->_log_query($sql, $this->hdb); //数据库系统设计综合实验特殊设计
+        $this->_r = $this->_log_query($sql, $this->_hdb); //数据库系统设计综合实验特殊设计
         return $this;
     }
 
@@ -138,7 +160,11 @@ class Database {
      */
     public function update($sql) {
         //操作跟delete相同，先query再检查affected_rows
-        return $this->delete($sql);
+        if ($this->query($sql)->affected_rows()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -146,8 +172,8 @@ class Database {
      * @return int
      */
     public function last_id() {
-        if ($this->hdb) {
-            return mysql_insert_id($this->hdb);
+        if ($this->_hdb) {
+            return mysql_insert_id($this->_hdb);
         }
         return false;
     }
@@ -157,8 +183,8 @@ class Database {
      * @return int
      */
     public function affected_rows() {
-        if ($this->hdb) {
-            return mysql_affected_rows($this->hdb);
+        if ($this->_hdb) {
+            return mysql_affected_rows($this->_hdb);
         }
         return false;
     }
@@ -169,7 +195,10 @@ class Database {
      * @return string
      */
     public function escape($string) {
-        return mysql_real_escape_string($string, $this->hdb);
+        if (!$this->_connected) {
+            $this->connect();
+        }
+        return mysql_real_escape_string($string, $this->_hdb);
     }
 
     /**
@@ -177,8 +206,8 @@ class Database {
      * @return int
      */
     public function errno() {
-        if ($this->hdb) {
-            return mysql_errno($this->hdb);
+        if ($this->_hdb) {
+            return mysql_errno($this->_hdb);
         }
         return false;
     }
@@ -188,8 +217,8 @@ class Database {
      * @return string
      */
     public function errmsg() {
-        if ($this->hdb) {
-            return mysql_error($this->hdb);
+        if ($this->_hdb) {
+            return mysql_error($this->_hdb);
         }
         return false;
     }
@@ -199,10 +228,10 @@ class Database {
      * @return bool
      */
     public function close() {
-        if ($this->hdb) {
-            mysql_close($this->hdb);
-            $this->connected = false;
-            $this->hdb = false;
+        if ($this->_hdb) {
+            mysql_close($this->_hdb);
+            $this->_connected = false;
+            $this->_hdb = false;
             return true;
         }
         return false;

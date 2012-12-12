@@ -26,8 +26,10 @@ function chk_register() {
         exit;
     }
     if ($uid = register_user($_POST['username'], $_POST['usermail'], $_POST['password'])) { //@todo: 邮件通知用户，user_status字段的维护
+
         $_SESSION['login'] = $_POST['username'];    //注册完直接就是已登录状态
         $_SESSION['uid'] = $uid;
+        $_SESSION['default_lid'] = get_user_default_lid($uid);
         header('Location: ' . get_baseurl());
     } else {  //插入有问题，可能情况是重复用户名或者电子邮件 @todo:前端ajax检查重复用户名和重复邮件
         header("Content-type: text/plain; charset=UTF-8");

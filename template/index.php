@@ -17,7 +17,7 @@
     <script type="text/javascript" src="static/js/jquery.min.js"></script>
     <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
 </head>
-<body>
+<body style="overflow: hidden;">
 
 <div class="header">
     <div class="navbar navbar-fixed-top" style="margin-bottom: 0;">
@@ -40,7 +40,7 @@
                         <li><a>系统说明</a></li>
                         <li><a href="#">修改密码</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">退出登录</a></li>
+                        <li><a href="login.php?action=logout">退出登录</a></li>
                     </ul>
                 </li>
             </ul>
@@ -50,30 +50,9 @@
 <div>
     <div id="sidebar">
         <ul class="nav nav-tabs nav-stacked" style="margin-bottom: 0;">
-            <?php //foreach($lists as $l):?>
-            <li><?//=$l['list_name']?></li>
-            <?php //endforeach; ?>
-            <li><a href="#">购买列表 <i class="icon-chevron-right"></i></a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
-            <li><a href="#">购买列表</a></li>
-            <li><a href="#">书单</a></li>
-            <li><a href="#">作业列表</a></li>
+            <?php foreach($lists as $l):?>
+            <li><a href="#" class="list-<?=$l['lid']?> <? echo $l['lid'] == $user['user_default_lid'] ? 'default_list' : ''; ?>"><?=$l['list_name']?></a></li>
+            <?php endforeach; ?>
         </ul>
         <div id="add_list">
             <a class="btn btn-success btn-block"><i class="icon-plus icon-white"></i> 添加列表</a>
@@ -92,7 +71,7 @@
 
         <ul id="tasks">
             <li>
-                <span><input class="checkbox"></span>
+                <span><input class="checkbox" type="checkbox"></span>
                 <span></span>
             </li>
         </ul>

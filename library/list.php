@@ -66,11 +66,33 @@ function del_user_list($uid, $lid, $force = false) {
     return $db->delete($sql);
 }
 
-function update_user_list($uid, $lid, $new_name) {
+/**
+ * 修改用户列表名称
+ * @param $uid
+ * @param $lid
+ * @param $new_name
+ * @return bool
+ */
+function update_user_listname($uid, $lid, $new_name) {
     global $db;
 
     $sql = "UPDATE `lists` SET `list_name` = %s WHERE `lid` = %d AND `list_uid` = %d";
     $sql = sprintf($sql, $new_name, $lid, $uid);
+
+    return $db->update($sql);
+}
+
+/**
+ * 更新列表的任务计数
+ * @param $lid
+ * @param string $delta
+ * @return bool
+ */
+function update_tasks_count($lid, $delta = '+1') {
+    global $db;
+
+    $sql = "UPDATE `lists` SET `list_tasks_count` = `list_tasks_count`%s WHERE `lid` = %d";
+    $sql = sprintf($sql, $delta, $lid);
 
     return $db->update($sql);
 }

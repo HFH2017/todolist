@@ -8,7 +8,7 @@
  */
 include(dirname(__FILE__) . '/include/init.php');
 
-if (!isset($_GET['action']) || !in_array($_GET['action'], array('chk_login'))) {
+if (!isset($_GET['action']) || !in_array($_GET['action'], array('chk_login', 'logout'))) {
     $_GET['action'] = 'index';
 }
 call_user_func($_GET['action']);
@@ -30,6 +30,7 @@ function chk_login() {
     if($user = chk_user_login($_POST['username'], $_POST['password'])){
         $_SESSION['login'] = $user['user_name'];
         $_SESSION['uid'] = $user['uid'];
+        $_SESSION['default_lid'] = $user['user_default_lid'];
         header('Location: ' . get_baseurl());
     } else {
         header("Content-type: text/plain; charset=UTF-8");
@@ -37,4 +38,14 @@ function chk_login() {
         echo '用户名或密码错误，3秒后跳回登陆页面';
         exit;
     }
+}
+
+function logout() {
+    session_unset();
+    session_destroy();
+    session_write_close();
+    header("Content-type: text/plain; charset=UTF-8");
+    header("refresh:5;url=/");
+    echo '已退出登录，5秒后跳回登陆页面';
+    exit;
 }
