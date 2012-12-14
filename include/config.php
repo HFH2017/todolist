@@ -20,6 +20,8 @@ if (!isset($cfg)) {
     //配置站点信息点开始
     $cfg->site->url     = 'http://127.0.0.15'; //站点根目录对应的url
 
+    $cfg->log->pagesize = 20;
+
 
 }
 

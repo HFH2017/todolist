@@ -18,6 +18,7 @@
 
     <script type="text/javascript" src="static/js/shCore.js"></script>
     <script type="text/javascript" src="static/js/shBrushSql.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
     <style>
         body{background-color: #FFF;}
         .syntaxhighlighter .line {
@@ -53,26 +54,25 @@
         <table class="table table-striped">
             <thead><tr><th style="width: 50px;">序号</th><th>SQL语句</th><th style="width: 90px;">执行耗时(S)</th><th style="width: 150px;">执行时间</th><th style="width: 100px;">客户端IP</th></tr></thead>
             <tbody>
-                <?php while ($l = array_pop($logs)) : //@todo: 检查部署时候的Linux系统上是否需要手工做时区计算（+8） ?>
+                <?php while ($l = array_shift($logs)) : //@todo: 检查部署时候的Linux系统上是否需要手工做时区计算（+8） ?>
                 <tr><td><?=$l['no']?></td><td><pre class="brush: sql"><?=$l['sql']?></pre></td><td><?=round($l['timespent'], 6)?></td><td><?=date('Y-m-d H:i:s', $l['timestamp'])?></td><td><?=$l['ip']?></td></tr>
                 <?endwhile; ?>
             </tbody>
-        </table><? /*
-        <table>
-            <thead><tr><th>序号</th><th>SQL语句</th></tr></thead>
-            <tbody>
-            <?php while ($l = array_pop($logs)) : //@todo: 检查部署时候的Linux系统上是否需要手工做时区计算（+8） ?>
-            <tr><td><?=$l['no']?></td>
-                <td style="width: 800px;"><pre class="brush: sql"><?=$l['sql']?></pre>
-                    <div>执行耗时：<?=round($l['timespent'], 6)?>s 执行时刻：<?=date('Y-m-d H:i:s', $l['timestamp'])?> 客户端IP:<?=$l['ip']?></div>
-                </td></tr>
-                <?endwhile; ?>
-            </tbody>
-        </table> */?>
+        </table>
+        <div class="pagination_area">
+
+            <form name="page_chooser" class="form-inline" style="text-align: center;">
+                <?php if ($cur_page > 1) : ?><a class="btn" href="?p=<?=$cur_page - 1?>">上一页</a><?php endif; ?>
+                <select name="page_no" style="width: 100px;" onchange="javascript: location.href=page_chooser.page_no.options[selectedIndex].value">
+                    <?php for($i = 1; $i <= $total; $i++):?><option <?= $i == $cur_page ? 'selected' : ''?> value="?p=<?=$i?>" ><?php printf("第%d页", $i); ?></option>
+                    <? endfor;?>
+                </select>
+                <?php if ($cur_page < $total) : ?><a class="btn" href="?p=<?=$cur_page + 1?>">下一页</a><?php endif; ?>
+            </form>
+        </div>
     </div>
     <?php include(dirname(__FILE__) . '/footer.php'); ?>
 </div>
-
 
 </body>
 </html>

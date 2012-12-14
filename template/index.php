@@ -33,7 +33,7 @@
                 <li><a class="#">deadlined</a></li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        Username
+                        <?=$user['user_name']?>
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
