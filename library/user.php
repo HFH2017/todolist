@@ -76,11 +76,12 @@ function init_user_data($uid) {
     $lid = new_user_list($uid, '默认列表');
     set_user_default_lid($uid, $lid);
 
-    new_user_task($uid, $lid, '这是一个默认的任务'); //@todo: 完善初始化数据  前端界面 图片 尽快 从简
-    new_user_task($uid, $lid, '任务还可以加星标', 1);
-    new_user_task($uid, $lid, '本任务已完成，别管我', 0, 1);
-    new_user_task($uid, $lid, '这个任务带有截止时间，就是今天', 0, 0, date("Y-m-d"));
-    new_user_task($uid, $lid, '这个任务还有附注信息', 0, 0, 0, '我是附注信息啦');
+    new_user_task($uid, $lid, '这是一个默认的任务', 0, 0, 0, '', false ); //@todo: 完善初始化数据  前端界面 图片 尽快 从简
+    new_user_task($uid, $lid, '任务还可以加星标', 1, 0, 0, '', false);
+    new_user_task($uid, $lid, '本任务已完成，别管我', 0, 1, 0, '', false);
+    new_user_task($uid, $lid, '这个任务带有截止时间，就是今天', 0, 0, date("Y-m-d"), '', false);
+    new_user_task($uid, $lid, '这个任务还有附注信息', 0, 0, 0, '我是附注信息啦', false);
+    update_tasks_count($lid, '+6'); // 一次性更新任务计数
     return $lid;
 
 }
@@ -94,8 +95,8 @@ function init_user_data($uid) {
 function set_user_default_lid($uid, $lid) {
     global $db;
 
-    $sql = "UPDATE `users` SET `user_default_lid` = '%d' WHERE  `uid` =%d";
-    $sql = sprintf($sql, $uid, $lid);
+    $sql = "UPDATE `users` SET `user_default_lid` = '%d' WHERE `uid` = '%d'";
+    $sql = sprintf($sql, $lid, $uid);
 
     return $db->update($sql);
 }
@@ -112,8 +113,7 @@ function get_user_default_lid($uid) {
     $sql = sprintf($sql, $uid);
 
 
-    $d_lid = $db->query($sql)->returnObj(true)->fetchOne()->user_default_lid;
-    $db->returnObj(false);
+    $d_lid = $db->query($sql)->fetchOne('obj')->user_default_lid;
 
     return $d_lid;
 }

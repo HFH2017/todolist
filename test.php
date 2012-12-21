@@ -8,4 +8,4 @@
  */
 include_once(dirname(__FILE__) . '/include/init.php');
 
-echo get_user_default_lid(2);
+print_r($db->query("DESCRIBE `tasks`")->fetchALL());

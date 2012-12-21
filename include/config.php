@@ -30,7 +30,9 @@ if (!defined('TPL_ROOT_PATH')) define('TPL_ROOT_PATH', dirname(dirname(__FILE__)
 if (!defined('TPL_FILE_EXT')) define('TPL_FILE_EXT', '.php');
 
 //数据库操作日志存放文件
-if (!defined('SQL_LOG_FILE')) define('SQL_LOG_FILE', dirname(dirname(__FILE__)) . '/sql.log.json');
+if (!defined('SQL_LOG_FILE')) define('SQL_LOG_FILE', dirname(dirname(__FILE__)) . '/data/sql.log.json');
+//数据库数据字典存放文件
+if (!defined('DATADICT_FILE')) define('DATADICT_FILE', dirname(dirname(__FILE__)) . '/data/datadict.json');
 
 //时区设置
 ini_set("date.timezone", 'Asia/Shanghai'); // 系统时区

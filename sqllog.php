@@ -7,7 +7,9 @@
  * To change this template use File | Settings | File Templates.
  */
 include(dirname(__FILE__) . '/include/init.php');
-$logs =json_decode(file_get_contents(dirname(__FILE__) . '/sql.log.json'), true);
+
+$logs =json_decode(file_get_contents(SQL_LOG_FILE), true);
+
 foreach ($logs as $k => &$v) {
     $v['no'] = $k+1;    //加上序号
 }

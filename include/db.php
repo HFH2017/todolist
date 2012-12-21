@@ -22,8 +22,9 @@ class Database {
     private $_connected = false; //数据库连接状态
     private $_hdb; //数据库句柄
     private $_r; //查询结果
+    private $_logs; //数据库日志
 
-    private $_returnObj = false; //返回数组还是对象，默认返回数组
+    private $_return_type = 'assoc'; //默认返回记录类型assoc | num | obj
 
     /**
      * 初始化数据库连接信息
@@ -39,6 +40,19 @@ class Database {
         $this->_pass = $pass;
         $this->_dbname = $dbname;
         $this->_charset = $charset;
+    }
+
+    /**
+     * 设置默认的返回记录形式 obj|num|assoc(默认)
+     * @param $drt
+     * @return bool
+     */
+    public function setDefaultReturnType($drt) {
+        if (!in_array($drt, array('num', 'assoc', 'obj'))) {
+            return false;
+        } else {
+            $this->_return_type = $drt;
+        }
     }
 
     /**
@@ -70,43 +84,35 @@ class Database {
     }
 
     /**
-     * 读取的行数据是否返回标准对象的开关，默认返回字段名为下标的数组
-     * 可以串联使用,如 $db->query($sql)->returnObj(true)->fetchOne();
-     * @param $returnObj 为真返回stdClass对象
-     * @return Database
+     * 获取记录集中的一行，可以指定返回类型assoc(默认):关联数组；num:数字索引数组；obj:对象；
+     * @param string $return_type
+     * @return array|object
      */
-    public function returnObj($returnObj = false) {
-        $this->_returnObj = $returnObj;
-        return $this;
-    }
-
-    /**
-     * 获取记录集中的一行，可以通过returnObj()方法设定返回数组还是对象
-     * @return array
-     */
-    public function fetchOne() {
+    public function fetchOne($return_type = '') {
         if ($this->_r) {
-            $row = mysql_fetch_assoc($this->_r);
-            if ($this->_returnObj) {
-                $obj = new stdClass();
-                foreach ($row as $k => $v) {
-                    $obj->$k = $v;
-                }
-                return $obj;
-            } else {
-                return $row;
+            if (!isset($return_type) || empty($return_type)) {
+                $return_type = $this->_return_type;
             }
+            if ($return_type == 'num') {
+                $row = mysql_fetch_row($this->_r);
+            } else if ($return_type == 'obj') {
+                $row = mysql_fetch_object($this->_r);
+            } else if ($return_type == 'assoc') {
+                $row = mysql_fetch_assoc($this->_r);
+            }
+            return $row;
         }
         return false;
     }
 
     /**
-     * 获取记录集中的全部数据，以数组形式返回记录集每一行
+     * 获取记录集中的全部数据，以数组形式返回记录集每一行，可以指定返回类型assoc(默认):关联数组；num:数字索引数组；obj:对象；
+     * @param string $return_type
      * @return array 失败返回空数组
      */
-    public function fetchAll() {
+    public function fetchAll($return_type = '') {
         $rows = array();
-        while ($row = $this->fetchOne()) {
+        while ($row = $this->fetchOne($return_type)) {
             $rows[] = $row;
         }
         return $rows;
@@ -254,12 +260,23 @@ class Database {
         $log->timestamp = time();
         $log->timespent = $time_end - $time_start;
         $log->ip = get_ip();
+        $this->_logs[] = $log;
 
-        //@todo: 这是一个很粗暴的日志记录实现方式，有待改进
-        $logs = json_decode(file_get_contents(SQL_LOG_FILE), true);
-        $logs[] = $log;
-        file_put_contents(SQL_LOG_FILE, json_encode($logs));
 
         return $r;
+    }
+
+    /**
+     * 追加日志保存到文件
+     */
+    private function _save_logs() {
+        //@todo: 这是一个很粗暴的日志记录实现方式，有待改进
+        $logs = json_decode(file_get_contents(SQL_LOG_FILE), true);
+        $logs = array_merge($logs, $this->_logs);
+        file_put_contents(SQL_LOG_FILE, json_encode($logs));
+    }
+
+    function __destruct() {
+        $this->_save_logs();
     }
 }

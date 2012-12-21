@@ -69,11 +69,11 @@
             </form>
         </div>
 
-        <ul id="tasks">
+        <ul id="tasks"><? foreach($tasks as $t) :?>
             <li>
                 <span><input class="checkbox" type="checkbox"></span>
-                <span></span>
-            </li>
+                <span><?=$t['task_name']?></span>
+            </li><? endforeach;?>
         </ul>
 
     </div>
