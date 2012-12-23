@@ -22,7 +22,7 @@ class Database {
     private $_connected = false; //数据库连接状态
     private $_hdb; //数据库句柄
     private $_r; //查询结果
-    private $_logs; //数据库日志
+    private $_logs = array(); //数据库日志
 
     private $_return_type = 'assoc'; //默认返回记录类型assoc | num | obj
 

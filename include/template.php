@@ -23,6 +23,13 @@ class Template {
     }
 
     /**
+     * 清除所有模版变量赋值
+     */
+    public function clean() {
+        $this->_data = array();
+    }
+
+    /**
      * 返回模版渲染之后的内容，失败返回假
      * @param string $tpl_name
      * @return bool|string
