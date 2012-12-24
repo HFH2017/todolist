@@ -26,6 +26,25 @@ function get_user_lists($uid) {
 }
 
 /**
+ * 返回用户的一个列表
+ * @param $uid
+ * @param $lid
+ * @return array
+ */
+function get_user_list($uid, $lid) {
+    global $db;
+
+    $sql = "SELECT * FROM `lists` WHERE `list_uid` = %d AND `lid` = %d";
+    $sql = sprintf($sql, $uid, $lid);
+
+    if ($list = $db->query($sql)->fetchOne()) {
+        return $list;
+    } else {
+        return array();
+    }
+}
+
+/**
  * 创建指定用户的一个列表
  * @param $uid
  * @param $list_name
@@ -95,4 +114,17 @@ function update_tasks_count($lid, $delta = '+1') {
     $sql = sprintf($sql, $delta, $lid);
 
     return $db->update($sql);
+}
+
+/**
+ * 取得列表条目结构关联数组
+ * @return array
+ */
+function get_list_tmpl() {
+    return array(
+        'lid' => '',
+        'list_name' => '',
+        'list_uid' => '',
+        'list_tasks_count' => ''
+    );
 }

@@ -8,10 +8,5 @@
  */
 include_once(dirname(__FILE__) . '/include/init.php');
 
-$sql = "SHOW TABLES FROM `2010wwll\_todolist`";
-while ($ta = $db->query($sql)->fetchOne('obj')) { // 获取所有表名
-    $table = new stdClass();
-    $table->name = $ta[0];
-    $tables[] = $table;
-}
-var_dump($tables);
+if (!$a = 1) echo 1;
+echo 2;

@@ -56,8 +56,5 @@ function update() {
 
     //save
     file_put_contents(DATADICT_FILE, json_encode($tables));
-    header("Content-type: text/plain; charset=UTF-8");
-    header("refresh:3;url=" . get_baseurl(). '/datadict.php');
-    echo '已更新数据字典缓存，3秒后跳回数据字典页面';
-    exit;
+    redirect(get_baseurl(). '/datadict.php', 3, '已更新数据字典缓存，3秒后跳回数据字典页面');
 }

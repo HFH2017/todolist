@@ -46,6 +46,16 @@ function chk_user_login($user_login, $user_pass) {
 }
 
 /**
+ * @param $user
+ */
+function user_login($user) {
+    $_SESSION['login'] = $user['user_name'];
+    $_SESSION['uid'] = $user['uid'];
+    $_SESSION['default_lid'] = $user['user_default_lid'];
+    $_SESSION['current_lid'] = $user['user_default_lid'];
+}
+
+/**
  * 注册用户
  * @param $user_name
  * @param $user_mail
@@ -60,7 +70,6 @@ function register_user($user_name, $user_mail, $user_pass) {
     $sql = sprintf($sql, $db->escape($user_name), md5(md5($user_pass)), $db->escape($user_mail)); //double md5
 
     if ($uid = $db->insert($sql)) {
-        init_user_data($uid);
         return $uid;
     } else {
         return false;

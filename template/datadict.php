@@ -5,6 +5,8 @@
  * Date: 12-12-23
  * Time: 上午10:19
  * To change this template use File | Settings | File Templates.
+ *
+ * @param $tables: 数据表信息
  */?><!DOCTYPE html>
 <html>
 <head>
@@ -27,12 +29,12 @@
     <div>
         <h2><?=$t->name;?> <small><?=$t->comment?></small></h2>
         <table class="table table-striped">
-            <thead><tr><th>#</th><th>字段</th><th>类型</th><th>允许空</th><th>默认值</th><th>额外</th><th>注释</th></tr></thead>
+            <thead><tr><th>#</th><th style="width: 20%;">字段</th><th>类型</th><th>允许空</th><th>默认值</th><th>额外</th><th style="width: 20%;">注释</th></tr></thead>
             <tbody>
             <?php foreach ($t->columns as $c) :?>
             <tr>
                 <td><?=$c->ORDINAL_POSITION?></td>
-                <td><?=$c->COLUMN_NAME?></td>
+                <td><?=$c->COLUMN_KEY == 'PRI' ? "<b>$c->COLUMN_NAME</b>" : $c->COLUMN_NAME ?></td>
                 <td><?=$c->COLUMN_TYPE?></td>
                 <td><?=$c->IS_NULLABLE?></td>
                 <td><?=$c->COLUMN_DEFAULT?></td>

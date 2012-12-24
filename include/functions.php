@@ -74,3 +74,38 @@ function get_ip() {
     }
     return $ip;
 }
+
+/**
+ * 向浏览器输出错误信息，并停止解析
+ * @param $ErrMsg
+ */
+function err($ErrMsg) {
+    header('HTTP/1.1 405 Method Not Allowed');
+    header('Content-Type:text/plain; charset=utf-8');
+    echo $ErrMsg;
+    exit;
+}
+
+/**
+ * 浏览器URL重定向
+ * @param string $url  URL
+ * @param int $delay 延时
+ * @param string $msg 输出信息
+ */
+function redirect($url, $delay = 0, $msg = '') {
+    if (!headers_sent()) {
+        if (0 === $delay) {
+            header('Location: ' . $url);
+        } else {
+            header("Content-type: text/plain; charset=UTF-8");
+            header("refresh:{$delay};url={$url}");
+            echo($msg);
+        }
+        exit;
+    } else {
+        $str = "<meta http-equiv='Refresh' content='{$delay};URL={$url}'>";
+        if ($delay != 0)
+            $str .= $msg;
+        exit($str);
+    }
+}

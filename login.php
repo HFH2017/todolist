@@ -19,33 +19,20 @@ function index() {
 }
 
 function chk_login() {
-    global $db, $cfg;
     if (empty($_POST['username']) || empty($_POST['password'])) {
-        header("Content-type: text/plain; charset=UTF-8");
-        header("refresh:3;url=" . get_baseurl());
-        echo '用户名密码不能为空，3秒后跳回登陆页面';
-        exit;
+        redirect(get_baseurl(), 3, '用户名密码不能为空，3秒后跳回登陆页面');
     }
 
     if($user = chk_user_login($_POST['username'], $_POST['password'])){
-        $_SESSION['login'] = $user['user_name'];
-        $_SESSION['uid'] = $user['uid'];
-        $_SESSION['default_lid'] = $user['user_default_lid'];
-        header('Location: ' . get_baseurl());
+        user_login($user);
+        redirect(get_baseurl());
     } else {
-        header("Content-type: text/plain; charset=UTF-8");
-        header("refresh:3;url=" . get_baseurl());
-        echo '用户名或密码错误，3秒后跳回登陆页面';
-        exit;
+        redirect(get_baseurl(), 3, '用户名或密码错误，3秒后跳回登陆页面');
     }
 }
 
 function logout() {
-    session_unset();
     session_destroy();
-    session_write_close();
-    header("Content-type: text/plain; charset=UTF-8");
-    header("refresh:5;url=/");
-    echo '已退出登录，5秒后跳回登陆页面';
-    exit;
+
+    redirect('/', 5, '已退出登录，5秒后跳回登陆页面');
 }

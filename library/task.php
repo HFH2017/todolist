@@ -28,7 +28,7 @@ function get_user_tasks($uid, $lid) {
 
 /**
  * 添加用户任务
- * @param $uid
+ * @param $tid
  * @param $lid
  * @param $task_name
  * @param bool $is_stared 是否加星标，可空默认为假
@@ -38,7 +38,7 @@ function get_user_tasks($uid, $lid) {
  * @param bool $update_count 是否自动更新列表任务数量计数，默认为真，如果批量加入任务可以手动更新
  * @return bool|int 成功返回任务ID，失败返回假
  */
-function new_user_task($uid, $lid, $task_name, $is_stared = false, $is_finished = false, $task_deadline = '', $task_note = '', $update_count = true) {
+function new_user_task($tid, $lid, $task_name, $is_stared = false, $is_finished = false, $task_deadline = '', $task_note = '', $update_count = true) {
     global $db;
 
     $is_stared = empty($is_stared) ? 0 : 1;
@@ -49,14 +49,32 @@ function new_user_task($uid, $lid, $task_name, $is_stared = false, $is_finished 
 
     $sql = "INSERT INTO `tasks` (`task_name`, `task_uid`, `task_lid`, `task_ctime`, `task_stared`, `task_finished`, `task_deadline`, `task_note`)
             VALUES ('%s', %d, %d, NOW(), %d, %d, '%s', '%s')";
-    $sql = sprintf($sql, $task_name, $uid, $lid, $is_stared, $is_finished, $task_deadline, $task_note);
+    $sql = sprintf($sql, $db->escape($task_name), $tid, $lid, $is_stared, $is_finished, $task_deadline, $db->escape($task_note));
 
-    if ($uid = $db->insert($sql)) {
+    if ($tid = $db->insert($sql)) {
         if ($update_count) {
             update_tasks_count($lid);
         }
-        return $uid;
+        return $tid;
     } else {
         return false;
     }
+}
+
+/**
+ * 取得任务条目结构关联数组
+ * @return array
+ */
+function get_task_tmpl() {
+    return array(
+        'tid' => '',
+        'task_name' => '',
+        'task_stared' => '0',
+        'task_finished' => '0',
+        'task_deadline' => '0',
+        'task_ctime' => '0',
+        'task_note' => 'NULL',
+        'task_lid' => '',
+        'task_uid' => '',
+    );
 }

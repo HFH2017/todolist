@@ -5,6 +5,11 @@
  * Date: 12-12-3
  * Time: 下午7:27
  * To change this template use File | Settings | File Templates.
+ *
+ * @param $user: 当前条目，数据库users表里面的一个条目
+ * @param $lists: 用户列表
+ * @param $tasks: 当前用户当前列表任务
+ * @param $current_list_name
  */
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html">
@@ -16,6 +21,7 @@
     <link rel="stylesheet" type="text/css" href="static/css/main.css">
     <script type="text/javascript" src="static/js/jquery.min.js"></script>
     <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/js/main.js"></script>
 </head>
 <body style="overflow: hidden;">
 
@@ -25,7 +31,6 @@
             <div style="margin-left: 20px;">
                 <a class="brand" href="#">Ultimate List - 今天</a>
             </div>
-
 
             <ul class="nav pull-right">
                 <li><a class="#">Today</a></li>
@@ -49,35 +54,20 @@
 </div>
 <div>
     <div id="sidebar">
-        <ul class="nav nav-tabs nav-stacked" style="margin-bottom: 0;">
+        <ul class="lists nav nav-tabs nav-stacked" style="margin-bottom: 0;">
             <?php foreach($lists as $l):?>
-            <li><a href="#" class="list-<?=$l['lid']?> <? echo $l['lid'] == $user['user_default_lid'] ? 'default_list' : ''; ?>"><?=$l['list_name']?></a></li>
+            <? include(TPL_ROOT_PATH. '/list_item.php'); ?>
             <?php endforeach; ?>
         </ul>
         <div id="add_list">
-            <a class="btn btn-success btn-block"><i class="icon-plus icon-white"></i> 添加列表</a>
+            <a class="btn btn-block" href="#dlg_add_list" data-toggle="modal"><i class="icon-plus icon-gray"></i> 添加列表</a>
         </div>
 
     </div>
     <div id="content">
-        <div id="add_task">
-            <form method="POST">
-                <div class="input-append" style="text-align: center;">
-                <input class="text" type="text" style="width: 80%;">
-                <button class="btn">添加Todo</button>
-                </div>
-            </form>
-        </div>
-
-        <ul id="tasks"><? foreach($tasks as $t) :?>
-            <li>
-                <span><input class="checkbox" type="checkbox"></span>
-                <span><?=$t['task_name']?></span>
-            </li><? endforeach;?>
-        </ul>
-
+        <? include(TPL_ROOT_PATH . '/index_content.php'); ?>
     </div>
 </div>
-
+<? include(TPL_ROOT_PATH . '/modals.php'); ?>
 </body>
 </html>
