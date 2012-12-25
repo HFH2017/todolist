@@ -16,7 +16,7 @@
 function get_user_tasks($uid, $lid) {
     global $db;
 
-    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `task_lid` = %d";
+    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `task_lid` = %d ORDER BY `tid` DESC";
     $sql = sprintf($sql, $uid, $lid);
 
     if ($tasks = $db->query($sql)->fetchAll()) {
@@ -24,6 +24,116 @@ function get_user_tasks($uid, $lid) {
     } else {
         return array();
     }
+}
+
+/**
+ * 取得某用户今天及以前过期的全部任务
+ * @param $uid
+ * @return array
+ */
+function get_user_tasks_today($uid) {
+    global $db;
+
+    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `task_deadline`<= NOW() AND  `task_deadline` !=0";
+    $sql = sprintf($sql, $uid);
+
+    if ($tasks = $db->query($sql)->fetchAll()) {
+        return $tasks;
+    } else {
+        return array();
+    }
+}
+
+function get_user_tasks_7day($uid) {
+    global $db;
+
+    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `task_deadline`<= DATE_ADD(NOW() , INTERVAL 7 DAY) AND  `task_deadline` !=0";
+    $sql = sprintf($sql, $uid);
+
+    if ($tasks = $db->query($sql)->fetchAll()) {
+        return $tasks;
+    } else {
+        return array();
+    }
+}
+
+function get_user_tasks_stared($uid) {
+    global $db;
+
+    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `task_stared`=1";
+    $sql = sprintf($sql, $uid);
+
+    if ($tasks = $db->query($sql)->fetchAll()) {
+        return $tasks;
+    } else {
+        return array();
+    }
+}
+/**
+ * 取得用户的某个任务详细信息
+ * @param $uid
+ * @param $tid
+ * @return array
+ */
+function get_task_detail($uid, $tid) {
+    global $db;
+
+    $sql = "SELECT * FROM `tasks` WHERE `task_uid` = %d AND `tid` = %d";
+    $sql = sprintf($sql, $uid, $tid);
+
+    if ($task = $db->query($sql)->fetchOne()) {
+        return $task;
+    } else {
+        return array();
+    }
+}
+
+/**
+ * 更新任务标题
+ * @param $uid
+ * @param $tid
+ * @param $new_title
+ * @return bool
+ */
+function update_task_name($uid, $tid, $new_title) {
+    global $db;
+
+    $sql = "UPDATE `tasks` SET `task_name` = '%s' WHERE `tid` = %d AND `task_uid` = %d";
+    $sql = sprintf($sql, $db->escape($new_title), $tid, $uid);
+
+    return $db->update($sql);
+}
+
+/**
+ * 更新任务附注
+ * @param $uid
+ * @param $tid
+ * @param $new_note
+ * @return bool
+ */
+function update_task_note($uid, $tid, $new_note) {
+    global $db;
+
+    $sql = "UPDATE `tasks` SET `task_note` = '%s' WHERE `tid` = %d AND `task_uid` = %d";
+    $sql = sprintf($sql, $db->escape($new_note), $tid, $uid);
+
+    return $db->update($sql);
+}
+
+/**
+ * 更新任务期限
+ * @param $uid
+ * @param $tid
+ * @param $new_deadline
+ * @return bool
+ */
+function update_task_deadline($uid, $tid, $new_deadline) {
+    global $db;
+
+    $sql = "UPDATE `tasks` SET `task_deadline` = '%s' WHERE `tid` = %d AND `task_uid` = %d";
+    $sql = sprintf($sql, $db->escape($new_deadline), $tid, $uid);
+
+    return $db->update($sql);
 }
 
 /**
@@ -59,6 +169,36 @@ function new_user_task($tid, $lid, $task_name, $is_stared = false, $is_finished 
     } else {
         return false;
     }
+}
+
+/**
+ * 开关用户任务的星标
+ * @param $uid
+ * @param $tid
+ * @return bool
+ */
+function user_task_toggle_star($uid, $tid) {
+    global $db;
+
+    $sql = "UPDATE `tasks` SET `task_stared` = 1 - `task_stared` WHERE `tid` = %d AND `task_uid` = %d";
+    $sql = sprintf($sql, $tid, $uid);
+
+    return $db->update($sql);
+}
+
+/**
+ * 开关用户任务的完成状态
+ * @param $uid
+ * @param $tid
+ * @return bool
+ */
+function user_task_toggle($uid, $tid) {
+    global $db;
+
+    $sql = "UPDATE `tasks` SET `task_finished` = 1 - `task_finished` WHERE `tid` = %d AND `task_uid` = %d";
+    $sql = sprintf($sql, $tid, $uid);
+
+    return $db->update($sql);
 }
 
 /**

@@ -23,7 +23,14 @@
 <li id="list-<?=$l['lid']?>" class="<?=$class?>">
     <a href="#" class="<?=$default?> clearfix">
         <i class="<?=$default? 'icon-tasks':'icon-align-justify'?>"></i>
-        <?=$l['list_name']?>
-        <span class="pull-right badge"><?=$l['list_tasks_count']?></span>
+        <span class="list_name"><?=$l['list_name']?></span>
+
+        <span class="pull-right badge">
+            <?=$l['list_tasks_count']?>
+        </span>
+
+        <? if($class): ?>
+        <span class="pull-right"><i class="edit_list icon-gray icon-edit clickable"></i></span>
+        <? endif; ?>
     </a>
 </li>

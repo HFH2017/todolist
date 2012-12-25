@@ -10,15 +10,16 @@
 /**
  * 返回用户的列表们
  * @param $uid
+ * @param string $return 返回类型
  * @return array
  */
-function get_user_lists($uid) {
+function get_user_lists($uid, $return = 'assoc') {
     global $db;
 
     $sql = "SELECT * FROM `lists` WHERE `list_uid` = %d";
     $sql = sprintf($sql, $uid);
 
-    if ($lists = $db->query($sql)->fetchAll()) {
+    if ($lists = $db->query($sql)->fetchAll($return)) {
         return $lists;
     } else {
         return array();
@@ -54,7 +55,7 @@ function new_user_list($uid, $list_name) {
     global $db;
 
     $sql = "INSERT INTO `lists` (`list_name`, `list_uid`) VALUES ('%s', %d)";
-    $sql = sprintf($sql, $list_name, $uid);
+    $sql = sprintf($sql, $db->escape($list_name), $uid);
 
     if ($lid = $db->insert($sql)) {
         return $lid;
@@ -95,8 +96,8 @@ function del_user_list($uid, $lid, $force = false) {
 function update_user_listname($uid, $lid, $new_name) {
     global $db;
 
-    $sql = "UPDATE `lists` SET `list_name` = %s WHERE `lid` = %d AND `list_uid` = %d";
-    $sql = sprintf($sql, $new_name, $lid, $uid);
+    $sql = "UPDATE `lists` SET `list_name` = '%s' WHERE `lid` = %d AND `list_uid` = %d";
+    $sql = sprintf($sql, $db->escape($new_name), $lid, $uid);
 
     return $db->update($sql);
 }
@@ -114,6 +115,26 @@ function update_tasks_count($lid, $delta = '+1') {
     $sql = sprintf($sql, $delta, $lid);
 
     return $db->update($sql);
+}
+
+/**
+ * 取得列表名字  通过Session里面的缓冲
+ * @internal param $_SESSION['lists']
+ * @internal param $_SESSION['uid']
+ * @param $lid
+ * @param bool $flush 是否从数据库获取并更新缓存，默认为真
+ * @return bool
+ */
+function get_list_name($lid, $flush = true) {
+    if (!isset($_SESSION['lists']) || empty($_SESSION['lists']) || $flush) {
+        $_SESSION['lists'] = get_user_lists($_SESSION['uid']);
+    }
+    foreach($_SESSION['lists'] as $l) {
+        if ($l['lid'] == $lid) {
+            return $l['list_name'];
+        }
+    }
+    return false;
 }
 
 /**

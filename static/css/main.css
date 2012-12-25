@@ -23,7 +23,6 @@ body {
     position: fixed;
     background: #f4f5f6;
     border-right: 2px solid #ddd;
-    z-index: 2;
 }
 
 #content {
@@ -33,7 +32,7 @@ body {
     bottom: 0;
     right: 0;
     top: 42px;
-    left: 270px;
+    left: 272px;
     background: url("../img/bg.png");
 }
 
@@ -57,6 +56,11 @@ body {
 .tasks {
     list-style: none;
     margin: 0;
+}
+
+.tasks .popover {
+    z-index: 50000;
+    position: fixed;
 }
 
 .tasks .task-item {
@@ -102,6 +106,13 @@ body {
     color: #888;
 }
 
+.task-note, .task-star, .deadline {
+    min-width: 20px;
+}
+.task-note {
+    margin-right: 10px;
+}
+
 .half-transparent, .finished {
     filter:alpha(Opacity=80);
     -moz-opacity:0.5;
@@ -133,4 +144,17 @@ body {
 
 .icon-smoke {
     background-image: url("../img/glyphicons-halflings-smoke.png");
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.margin0 {
+    margin: 0;
+}
+
+.popover-repos {
+    right: 50%;
+    bottom: 50%;
 }
